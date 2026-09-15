@@ -1,29 +1,28 @@
 package com.udea.lab12026p.controller;
 
 import com.udea.lab12026p.dto.TransactionDTO;
+import com.udea.lab12026p.dto.TransferRequestDTO;
 import com.udea.lab12026p.service.TransactionService;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping(value="/api/transactions", produces = "application/json")
+@RequestMapping(value = "/api/transactions", produces = "application/json")
 public class TransactionController {
 
-    @Autowired
-    private TransactionService transactionService;
+    private final TransactionService transactionService;
 
+    public TransactionController(TransactionService transactionService) {
+        this.transactionService = transactionService;
+    }
 
     @PostMapping
-    public ResponseEntity<?> transferMoney(@RequestBody TransactionDTO transactionDTO) {
-        try {
-            TransactionDTO savedTransaction = transactionService.transferMoney(transactionDTO);
-            return ResponseEntity.ok(savedTransaction);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<TransactionDTO> transferMoney(@Valid @RequestBody TransferRequestDTO transferRequest) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(transactionService.transferMoney(transferRequest));
     }
 
     @GetMapping("/{accountNumber}")

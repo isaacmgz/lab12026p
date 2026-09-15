@@ -1,12 +1,9 @@
 package com.udea.lab12026p.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.Generated;
 
 import java.time.LocalDateTime;
 
-@Data
 @Entity
 @Table(name="transaction")
 public class Transaction {
@@ -23,9 +20,8 @@ public class Transaction {
     @Column(nullable = false)
     private Double amount;
 
-    // @Column(nullable = false)
-     private LocalDateTime timestamp = LocalDateTime.now();
-
+    @Column(nullable = false)
+    private LocalDateTime timestamp;
 
     public Transaction() {
     }
