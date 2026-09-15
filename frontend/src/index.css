@@ -1,5 +1,153 @@
 @import 'tailwindcss';
 
-@theme {
+:root {
+  color-scheme: light dark;
+  --app-background: oklch(0.982 0.004 264);
+  --app-surface: oklch(1 0 0);
+  --app-surface-muted: oklch(0.968 0.005 264);
+  --app-surface-raised: oklch(0.994 0.002 264);
+  --app-border: oklch(0.914 0.008 264);
+  --app-border-strong: oklch(0.86 0.012 264);
+  --app-foreground: oklch(0.23 0.02 266);
+  --app-muted: oklch(0.53 0.02 266);
+  --app-primary: oklch(0.51 0.23 277);
+  --app-primary-hover: oklch(0.45 0.22 277);
+  --app-primary-foreground: oklch(1 0 0);
+  --app-primary-soft: oklch(0.955 0.025 277);
+  --app-success: oklch(0.55 0.15 158);
+  --app-success-soft: oklch(0.96 0.04 158);
+  --app-danger: oklch(0.56 0.21 18);
+  --app-danger-hover: oklch(0.49 0.2 18);
+  --app-danger-soft: oklch(0.96 0.03 18);
+  --app-warning: oklch(0.63 0.15 70);
+  --app-warning-soft: oklch(0.96 0.05 80);
+  --app-ring: oklch(0.58 0.23 277);
+  --app-shadow-card: 0 1px 2px oklch(0.23 0.02 266 / 0.06), 0 1px 3px oklch(0.23 0.02 266 / 0.05);
+  --app-shadow-raised: 0 10px 30px oklch(0.23 0.02 266 / 0.12);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --app-background: oklch(0.16 0.012 266);
+    --app-surface: oklch(0.205 0.014 266);
+    --app-surface-muted: oklch(0.255 0.015 266);
+    --app-surface-raised: oklch(0.235 0.015 266);
+    --app-border: oklch(0.3 0.015 266);
+    --app-border-strong: oklch(0.38 0.018 266);
+    --app-foreground: oklch(0.96 0.005 266);
+    --app-muted: oklch(0.73 0.018 266);
+    --app-primary: oklch(0.585 0.233 277);
+    --app-primary-hover: oklch(0.64 0.21 277);
+    --app-primary-foreground: oklch(1 0 0);
+    --app-primary-soft: oklch(0.3 0.08 277);
+    --app-success: oklch(0.73 0.16 158);
+    --app-success-soft: oklch(0.3 0.06 158);
+    --app-danger: oklch(0.68 0.19 18);
+    --app-danger-hover: oklch(0.73 0.17 18);
+    --app-danger-soft: oklch(0.32 0.08 18);
+    --app-warning: oklch(0.79 0.15 75);
+    --app-warning-soft: oklch(0.33 0.07 75);
+    --app-ring: oklch(0.68 0.19 277);
+    --app-shadow-card: 0 1px 2px oklch(0 0 0 / 0.4), 0 1px 3px oklch(0 0 0 / 0.3);
+    --app-shadow-raised: 0 16px 40px oklch(0 0 0 / 0.5);
+  }
+}
+
+@theme inline {
   --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, 'SFMono-Regular', 'JetBrains Mono', 'Menlo', monospace;
+
+  --color-background: var(--app-background);
+  --color-surface: var(--app-surface);
+  --color-surface-muted: var(--app-surface-muted);
+  --color-surface-raised: var(--app-surface-raised);
+  --color-border: var(--app-border);
+  --color-border-strong: var(--app-border-strong);
+  --color-foreground: var(--app-foreground);
+  --color-muted: var(--app-muted);
+  --color-primary: var(--app-primary);
+  --color-primary-hover: var(--app-primary-hover);
+  --color-primary-foreground: var(--app-primary-foreground);
+  --color-primary-soft: var(--app-primary-soft);
+  --color-success: var(--app-success);
+  --color-success-soft: var(--app-success-soft);
+  --color-danger: var(--app-danger);
+  --color-danger-hover: var(--app-danger-hover);
+  --color-danger-soft: var(--app-danger-soft);
+  --color-warning: var(--app-warning);
+  --color-warning-soft: var(--app-warning-soft);
+  --color-ring: var(--app-ring);
+
+  --radius-card: 0.875rem;
+  --shadow-card: var(--app-shadow-card);
+  --shadow-raised: var(--app-shadow-raised);
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--app-background);
+    color: var(--app-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--app-ring);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: color-mix(in oklab, var(--app-primary) 24%, transparent);
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+}
+
+@layer components {
+  dialog[open] {
+    animation: dialog-in 180ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  dialog[open]::backdrop {
+    animation: backdrop-in 180ms ease-out forwards;
+  }
+}
+
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

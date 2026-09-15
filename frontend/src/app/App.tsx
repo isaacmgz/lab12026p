@@ -1,7 +1,13 @@
+import { createBrowserRouter, RouterProvider } from 'react-router'
+import { AppProviders } from './providers'
+import { routes } from './routes'
+
+const router = createBrowserRouter(routes)
+
 export function App() {
   return (
-    <main className="grid min-h-dvh place-items-center">
-      <h1 className="text-2xl font-semibold">Lab Bank</h1>
-    </main>
+    <AppProviders>
+      <RouterProvider router={router} />
+    </AppProviders>
   )
 }
