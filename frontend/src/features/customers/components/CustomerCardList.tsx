@@ -1,11 +1,11 @@
-import { ArrowLeftRight, ReceiptText } from 'lucide-react'
+import { ArrowLeftRight, Pencil, ReceiptText, Trash2 } from 'lucide-react'
 import { Link } from 'react-router'
 import { formatCurrency } from '@/shared/lib/format'
-import { Avatar, iconButtonStyles } from '@/shared/ui'
+import { Avatar, IconButton, iconButtonStyles } from '@/shared/ui'
 import { customerFullName } from '../model/customer'
-import type { CustomerTableProps } from './CustomerTable'
+import type { CustomerListProps } from './CustomerTable'
 
-export function CustomerCardList({ customers }: CustomerTableProps) {
+export function CustomerCardList({ customers, onEdit, onDelete }: CustomerListProps) {
   return (
     <ul className="divide-y divide-border md:hidden">
       {customers.map((customer) => (
@@ -33,6 +33,19 @@ export function CustomerCardList({ customers }: CustomerTableProps) {
             >
               <ArrowLeftRight aria-hidden="true" className="size-4" />
             </Link>
+            <IconButton
+              label={`Edit ${customerFullName(customer)}`}
+              onClick={() => onEdit(customer)}
+            >
+              <Pencil aria-hidden="true" className="size-4" />
+            </IconButton>
+            <IconButton
+              label={`Delete ${customerFullName(customer)}`}
+              tone="danger"
+              onClick={() => onDelete(customer)}
+            >
+              <Trash2 aria-hidden="true" className="size-4" />
+            </IconButton>
           </div>
         </li>
       ))}

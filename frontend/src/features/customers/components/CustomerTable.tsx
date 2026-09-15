@@ -1,9 +1,10 @@
-import { ArrowLeftRight, ReceiptText } from 'lucide-react'
+import { ArrowLeftRight, Pencil, ReceiptText, Trash2 } from 'lucide-react'
 import { Link } from 'react-router'
 import { formatCurrency } from '@/shared/lib/format'
 import {
   Avatar,
   CopyButton,
+  IconButton,
   Table,
   TableContainer,
   Td,
@@ -13,11 +14,13 @@ import {
 } from '@/shared/ui'
 import { customerFullName, type Customer } from '../model/customer'
 
-export interface CustomerTableProps {
+export interface CustomerListProps {
   customers: Customer[]
+  onEdit: (customer: Customer) => void
+  onDelete: (customer: Customer) => void
 }
 
-export function CustomerTable({ customers }: CustomerTableProps) {
+export function CustomerTable({ customers, onEdit, onDelete }: CustomerListProps) {
   return (
     <TableContainer className="hidden md:block">
       <Table>
@@ -74,6 +77,19 @@ export function CustomerTable({ customers }: CustomerTableProps) {
                   >
                     <ArrowLeftRight aria-hidden="true" className="size-4" />
                   </Link>
+                  <IconButton
+                    label={`Edit ${customerFullName(customer)}`}
+                    onClick={() => onEdit(customer)}
+                  >
+                    <Pencil aria-hidden="true" className="size-4" />
+                  </IconButton>
+                  <IconButton
+                    label={`Delete ${customerFullName(customer)}`}
+                    tone="danger"
+                    onClick={() => onDelete(customer)}
+                  >
+                    <Trash2 aria-hidden="true" className="size-4" />
+                  </IconButton>
                 </div>
               </Td>
             </Tr>
