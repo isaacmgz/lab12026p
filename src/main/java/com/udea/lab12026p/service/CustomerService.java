@@ -2,6 +2,7 @@ package com.udea.lab12026p.service;
 
 import com.udea.lab12026p.dto.CustomerDTO;
 import com.udea.lab12026p.entity.Customer;
+import com.udea.lab12026p.exception.ResourceNotFoundException;
 import com.udea.lab12026p.mapper.CustomerMapper;
 import com.udea.lab12026p.repository.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +27,7 @@ public class CustomerService {
     }
     public CustomerDTO getCustomerById(Long id) {
         return customerRepository.findById(id).map(customerMapper::toDTO)
-                .orElseThrow(()-> new RuntimeException("Cliente no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Customer with id " + id + " was not found"));
     }
 
     public CustomerDTO createCustomer(CustomerDTO customerDTO) {
