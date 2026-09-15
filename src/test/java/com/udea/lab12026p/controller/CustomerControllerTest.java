@@ -1,6 +1,7 @@
 package com.udea.lab12026p.controller;
 
 import com.udea.lab12026p.dto.CustomerDTO;
+import com.udea.lab12026p.dto.UpdateCustomerRequest;
 import com.udea.lab12026p.exception.ConflictException;
 import com.udea.lab12026p.exception.ResourceNotFoundException;
 import com.udea.lab12026p.service.CustomerService;
@@ -12,10 +13,15 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -90,6 +96,53 @@ class CustomerControllerTest {
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.title").value("Conflict"))
                 .andExpect(jsonPath("$.detail").value("Account number 1001 is already in use"));
+    }
+
+    @Test
+    void updateCustomerReturnsUpdatedCustomer() throws Exception {
+        when(customerService.updateCustomer(eq(3L), any(UpdateCustomerRequest.class)))
+                .thenReturn(new CustomerDTO(3L, "Ana Maria", "Lopez", "1001", 250.0));
+
+        mockMvc.perform(put("/api/customers/3")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"firstName":"Ana Maria","lastName":"Lopez"}
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.firstName").value("Ana Maria"))
+                .andExpect(jsonPath("$.lastName").value("Lopez"));
+    }
+
+    @Test
+    void updateCustomerValidatesNames() throws Exception {
+        mockMvc.perform(put("/api/customers/3")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"firstName":"","lastName":"%s"}
+                                """.formatted("x".repeat(51))))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors.firstName").value("First name is required"))
+                .andExpect(jsonPath("$.errors.lastName").value("Last name must be at most 50 characters"));
+
+        verifyNoInteractions(customerService);
+    }
+
+    @Test
+    void deleteCustomerReturnsNoContent() throws Exception {
+        mockMvc.perform(delete("/api/customers/3"))
+                .andExpect(status().isNoContent());
+
+        verify(customerService).deleteCustomer(3L);
+    }
+
+    @Test
+    void deleteCustomerWithTransactionsReturnsConflict() throws Exception {
+        doThrow(new ConflictException("Customer with transactions cannot be deleted"))
+                .when(customerService).deleteCustomer(3L);
+
+        mockMvc.perform(delete("/api/customers/3"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.detail").value("Customer with transactions cannot be deleted"));
     }
 
     @Test

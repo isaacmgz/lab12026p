@@ -1,11 +1,13 @@
 package com.udea.lab12026p.service;
 
 import com.udea.lab12026p.dto.CustomerDTO;
+import com.udea.lab12026p.dto.UpdateCustomerRequest;
 import com.udea.lab12026p.entity.Customer;
 import com.udea.lab12026p.exception.ConflictException;
 import com.udea.lab12026p.exception.ResourceNotFoundException;
 import com.udea.lab12026p.mapper.CustomerMapperImpl;
 import com.udea.lab12026p.repository.CustomerRepository;
+import com.udea.lab12026p.repository.TransactionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,11 +31,14 @@ class CustomerServiceTest {
     @Mock
     private CustomerRepository customerRepository;
 
+    @Mock
+    private TransactionRepository transactionRepository;
+
     private CustomerService customerService;
 
     @BeforeEach
     void setUp() {
-        customerService = new CustomerService(customerRepository, new CustomerMapperImpl());
+        customerService = new CustomerService(customerRepository, transactionRepository, new CustomerMapperImpl());
     }
 
     @Test
@@ -69,6 +74,53 @@ class CustomerServiceTest {
                 .hasMessage("Account number 1001 is already in use");
 
         verify(customerRepository, never()).save(any());
+    }
+
+    @Test
+    void updateCustomerChangesOnlyNames() {
+        Customer existing = new Customer(3L, "1001", "Ana", "Diaz", 250.0);
+        when(customerRepository.findById(3L)).thenReturn(Optional.of(existing));
+        when(customerRepository.save(existing)).thenReturn(existing);
+
+        CustomerDTO result = customerService.updateCustomer(3L, new UpdateCustomerRequest(" Ana Maria ", "Lopez "));
+
+        assertThat(result.getFirstName()).isEqualTo("Ana Maria");
+        assertThat(result.getLastName()).isEqualTo("Lopez");
+        assertThat(result.getAccountNumber()).isEqualTo("1001");
+        assertThat(result.getBalance()).isEqualTo(250.0);
+    }
+
+    @Test
+    void updateCustomerThrowsWhenMissing() {
+        when(customerRepository.findById(8L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> customerService.updateCustomer(8L, new UpdateCustomerRequest("Ana", "Diaz")))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("Customer with id 8 was not found");
+    }
+
+    @Test
+    void deleteCustomerRemovesCustomerWithoutTransactions() {
+        Customer existing = new Customer(3L, "1001", "Ana", "Diaz", 0.0);
+        when(customerRepository.findById(3L)).thenReturn(Optional.of(existing));
+        when(transactionRepository.existsBySenderAccountNumberOrReceiverAccountNumber("1001", "1001")).thenReturn(false);
+
+        customerService.deleteCustomer(3L);
+
+        verify(customerRepository).delete(existing);
+    }
+
+    @Test
+    void deleteCustomerRejectsCustomerWithTransactions() {
+        Customer existing = new Customer(3L, "1001", "Ana", "Diaz", 0.0);
+        when(customerRepository.findById(3L)).thenReturn(Optional.of(existing));
+        when(transactionRepository.existsBySenderAccountNumberOrReceiverAccountNumber("1001", "1001")).thenReturn(true);
+
+        assertThatThrownBy(() -> customerService.deleteCustomer(3L))
+                .isInstanceOf(ConflictException.class)
+                .hasMessage("Customer with transactions cannot be deleted");
+
+        verify(customerRepository, never()).delete(any(Customer.class));
     }
 
     @Test

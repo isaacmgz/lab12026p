@@ -1,6 +1,7 @@
 package com.udea.lab12026p.controller;
 
 import com.udea.lab12026p.dto.CustomerDTO;
+import com.udea.lab12026p.dto.UpdateCustomerRequest;
 import com.udea.lab12026p.service.CustomerService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -38,5 +39,17 @@ public class CustomerController {
                 .buildAndExpand(created.getId())
                 .toUri();
         return ResponseEntity.created(location).body(created);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<CustomerDTO> updateCustomer(@PathVariable Long id,
+                                                      @Valid @RequestBody UpdateCustomerRequest updateRequest) {
+        return ResponseEntity.ok(customerFacade.updateCustomer(id, updateRequest));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteCustomer(@PathVariable Long id) {
+        customerFacade.deleteCustomer(id);
+        return ResponseEntity.noContent().build();
     }
 }
