@@ -3,6 +3,7 @@ package com.udea.lab12026p.controller;
 import com.udea.lab12026p.dto.TransactionDTO;
 import com.udea.lab12026p.dto.TransferRequestDTO;
 import com.udea.lab12026p.exception.BusinessRuleException;
+import com.udea.lab12026p.exception.ResourceNotFoundException;
 import com.udea.lab12026p.service.TransactionService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,10 +13,12 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -60,6 +63,30 @@ class TransactionControllerTest {
                 .andExpect(jsonPath("$.status").value(422))
                 .andExpect(jsonPath("$.title").value("Business rule violation"))
                 .andExpect(jsonPath("$.detail").value("Insufficient funds in account 1001"));
+    }
+
+    @Test
+    void historyReturnsTransactionsForAccount() throws Exception {
+        when(transactionService.getTransactionsForAccount("1001")).thenReturn(List.of(
+                new TransactionDTO(2L, "1002", "1001", 30.0, LocalDateTime.of(2026, 9, 15, 12, 0)),
+                new TransactionDTO(1L, "1001", "1002", 80.0, LocalDateTime.of(2026, 9, 14, 8, 0))));
+
+        mockMvc.perform(get("/api/transactions/1001"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].id").value(2))
+                .andExpect(jsonPath("$[1].id").value(1));
+    }
+
+    @Test
+    void historyReturnsNotFoundForUnknownAccount() throws Exception {
+        when(transactionService.getTransactionsForAccount("9999"))
+                .thenThrow(new ResourceNotFoundException("Account 9999 was not found"));
+
+        mockMvc.perform(get("/api/transactions/9999"))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON))
+                .andExpect(jsonPath("$.detail").value("Account 9999 was not found"));
     }
 
     @Test

@@ -72,7 +72,11 @@ public class TransactionService {
 
     @Transactional(readOnly = true)
     public List<TransactionDTO> getTransactionsForAccount(String accountNumber) {
-        return transactionRepository.findBySenderAccountNumberOrReceiverAccountNumber(accountNumber, accountNumber)
+        if (!customerRepository.existsByAccountNumber(accountNumber)) {
+            throw new ResourceNotFoundException("Account " + accountNumber + " was not found");
+        }
+        return transactionRepository
+                .findBySenderAccountNumberOrReceiverAccountNumberOrderByTimestampDescIdDesc(accountNumber, accountNumber)
                 .stream()
                 .map(transactionMapper::toDTO)
                 .toList();

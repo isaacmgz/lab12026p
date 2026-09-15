@@ -16,6 +16,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -90,6 +92,31 @@ class TransactionServiceTest {
         assertThat(sender.getBalance()).isEqualTo(50.0);
         assertThat(receiver.getBalance()).isEqualTo(100.0);
         verify(transactionRepository, never()).save(any());
+    }
+
+    @Test
+    void historyReturnsTransactionsInRepositoryOrder() {
+        LocalDateTime newer = LocalDateTime.of(2026, 9, 15, 12, 0);
+        LocalDateTime older = LocalDateTime.of(2026, 9, 14, 8, 0);
+        when(customerRepository.existsByAccountNumber("1001")).thenReturn(true);
+        when(transactionRepository.findBySenderAccountNumberOrReceiverAccountNumberOrderByTimestampDescIdDesc("1001", "1001"))
+                .thenReturn(List.of(
+                        new Transaction(2L, "1002", "1001", 30.0, newer),
+                        new Transaction(1L, "1001", "1002", 80.0, older)));
+
+        List<TransactionDTO> history = transactionService.getTransactionsForAccount("1001");
+
+        assertThat(history).extracting(TransactionDTO::getId).containsExactly(2L, 1L);
+        assertThat(history.get(0).getTimestamp()).isEqualTo(newer);
+    }
+
+    @Test
+    void historyRejectsUnknownAccount() {
+        when(customerRepository.existsByAccountNumber("9999")).thenReturn(false);
+
+        assertThatThrownBy(() -> transactionService.getTransactionsForAccount("9999"))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("Account 9999 was not found");
     }
 
     @Test
