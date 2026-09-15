@@ -1,5 +1,7 @@
 package com.udea.lab12026p.controller;
 
+import com.udea.lab12026p.dto.CustomerDTO;
+import com.udea.lab12026p.exception.ConflictException;
 import com.udea.lab12026p.exception.ResourceNotFoundException;
 import com.udea.lab12026p.service.CustomerService;
 import org.junit.jupiter.api.Test;
@@ -9,10 +11,13 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -36,6 +41,55 @@ class CustomerControllerTest {
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.title").value("Resource not found"))
                 .andExpect(jsonPath("$.detail").value("Customer with id 99 was not found"));
+    }
+
+    @Test
+    void createCustomerReturnsCreatedWithLocation() throws Exception {
+        when(customerService.createCustomer(any(CustomerDTO.class)))
+                .thenReturn(new CustomerDTO(3L, "Ana", "Diaz", "1001", 250.0));
+
+        mockMvc.perform(post("/api/customers")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"firstName":"Ana","lastName":"Diaz","accountNumber":"1001","balance":250}
+                                """))
+                .andExpect(status().isCreated())
+                .andExpect(header().string("Location", "http://localhost/api/customers/3"))
+                .andExpect(jsonPath("$.id").value(3))
+                .andExpect(jsonPath("$.accountNumber").value("1001"));
+    }
+
+    @Test
+    void createCustomerReturnsValidationErrorsPerField() throws Exception {
+        mockMvc.perform(post("/api/customers")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"firstName":" ","lastName":"Diaz","accountNumber":"12a","balance":-1}
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON))
+                .andExpect(jsonPath("$.title").value("Validation failed"))
+                .andExpect(jsonPath("$.detail").value("One or more fields are invalid."))
+                .andExpect(jsonPath("$.errors.firstName").value("First name is required"))
+                .andExpect(jsonPath("$.errors.accountNumber").value("Account number must contain 4 to 20 digits"))
+                .andExpect(jsonPath("$.errors.balance").value("Initial balance cannot be negative"));
+
+        verifyNoInteractions(customerService);
+    }
+
+    @Test
+    void createCustomerMapsDuplicateAccountToConflict() throws Exception {
+        when(customerService.createCustomer(any(CustomerDTO.class)))
+                .thenThrow(new ConflictException("Account number 1001 is already in use"));
+
+        mockMvc.perform(post("/api/customers")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"firstName":"Ana","lastName":"Diaz","accountNumber":"1001","balance":0}
+                                """))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.title").value("Conflict"))
+                .andExpect(jsonPath("$.detail").value("Account number 1001 is already in use"));
     }
 
     @Test
