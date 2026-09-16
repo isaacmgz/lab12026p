@@ -1,5 +1,6 @@
 import { NavLink, Outlet, ScrollRestoration } from 'react-router'
 import { cn } from '@/shared/lib/cn'
+import { ApiStatus } from './ApiStatus'
 import { BrandMark } from './BrandMark'
 import { navigationItems } from './navigation'
 
@@ -34,6 +35,9 @@ export function AppShell() {
             </NavLink>
           ))}
         </nav>
+        <div className="px-2 pt-4">
+          <ApiStatus />
+        </div>
       </aside>
 
       <header className="sticky top-0 z-30 flex items-center justify-between border-b border-border bg-surface/90 px-4 py-3 backdrop-blur lg:hidden">
