@@ -1,0 +1,543 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Informe Laboratorio N.º 1 — Arquitectura de Software</title>
+<style>
+  @page { size: A4; margin: 20mm 18mm 20mm 18mm; }
+
+  :root {
+    --ink: #1a1c22;
+    --muted: #5b6070;
+    --line: #d8dbe4;
+    --accent: #3b3ab8;
+    --accent-soft: #eef0fb;
+    --ok: #0f7a52;
+    --bad: #b02436;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    color: var(--ink);
+    font-family: "Liberation Serif", "DejaVu Serif", Georgia, serif;
+    font-size: 10.8pt;
+    line-height: 1.55;
+    text-align: justify;
+    hyphens: auto;
+  }
+
+  h1, h2, h3, h4, th, .sans { font-family: "Liberation Sans", "DejaVu Sans", Arial, sans-serif; }
+
+  h2 {
+    font-size: 14pt;
+    margin: 22pt 0 8pt;
+    padding-bottom: 4pt;
+    border-bottom: 1.5pt solid var(--accent);
+    break-after: avoid;
+    text-align: left;
+  }
+
+  h3 {
+    font-size: 11.5pt;
+    margin: 14pt 0 5pt;
+    color: var(--accent);
+    break-after: avoid;
+    text-align: left;
+  }
+
+  p { margin: 0 0 8pt; }
+  ul, ol { margin: 0 0 8pt; padding-left: 18pt; }
+  li { margin-bottom: 3pt; }
+  code, .mono { font-family: "Liberation Mono", "DejaVu Sans Mono", monospace; font-size: 9.2pt; }
+  code { background: #f2f3f7; padding: 0.5pt 3pt; border-radius: 3px; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 6pt 0 12pt;
+    font-size: 9.6pt;
+    break-inside: avoid;
+  }
+  th, td {
+    border: 0.75pt solid var(--line);
+    padding: 4.5pt 6pt;
+    text-align: left;
+    vertical-align: top;
+  }
+  th { background: var(--accent-soft); font-size: 9.2pt; }
+  td.mono, th.mono { font-family: "Liberation Mono", "DejaVu Sans Mono", monospace; font-size: 8.8pt; }
+
+  pre {
+    background: #f6f7fa;
+    border: 0.75pt solid var(--line);
+    border-left: 2.5pt solid var(--accent);
+    padding: 7pt 9pt;
+    font-family: "Liberation Mono", "DejaVu Sans Mono", monospace;
+    font-size: 8.8pt;
+    line-height: 1.45;
+    white-space: pre-wrap;
+    break-inside: avoid;
+    margin: 6pt 0 12pt;
+    text-align: left;
+  }
+
+  figure { margin: 8pt 0 12pt; break-inside: avoid; text-align: center; }
+  figure img { width: 90%; border: 0.75pt solid var(--line); border-radius: 4px; }
+  figure img.phone { width: 33%; }
+  figcaption {
+    font-family: "Liberation Sans", "DejaVu Sans", Arial, sans-serif;
+    font-size: 8.6pt;
+    color: var(--muted);
+    margin-top: 4pt;
+    text-align: center;
+  }
+
+  .cover { height: 247mm; display: flex; flex-direction: column; break-after: page; text-align: center; }
+  .cover .top { border-bottom: 2pt solid var(--accent); padding-bottom: 10pt; }
+  .cover .inst { font-family: "Liberation Sans", "DejaVu Sans", Arial, sans-serif; font-size: 12pt; font-weight: bold; letter-spacing: 0.4pt; }
+  .cover .sub { font-family: "Liberation Sans", "DejaVu Sans", Arial, sans-serif; font-size: 10pt; color: var(--muted); }
+  .cover .mid { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+  .cover h1 { font-size: 21pt; line-height: 1.25; margin: 0 0 10pt; }
+  .cover .lead { font-size: 12pt; color: var(--muted); margin: 0 auto; max-width: 118mm; text-align: center; }
+  .cover .meta { font-family: "Liberation Sans", "DejaVu Sans", Arial, sans-serif; font-size: 10.5pt; line-height: 1.9; }
+  .cover .meta b { display: inline-block; min-width: 26mm; text-align: right; margin-right: 6pt; color: var(--muted); font-weight: normal; }
+  .cover .repo { margin-top: 14pt; font-family: "Liberation Mono", "DejaVu Sans Mono", monospace; font-size: 9.5pt; color: var(--accent); }
+
+  .toc { background: #fafbfd; border: 0.75pt solid var(--line); border-radius: 5px; padding: 10pt 14pt; margin-bottom: 4pt; }
+  .toc h3 { margin-top: 0; }
+  .toc ol { margin: 0; padding-left: 16pt; font-family: "Liberation Sans", "DejaVu Sans", Arial, sans-serif; font-size: 9.8pt; }
+
+  .callout {
+    background: var(--accent-soft);
+    border-left: 2.5pt solid var(--accent);
+    padding: 8pt 11pt;
+    margin: 8pt 0 12pt;
+    break-inside: avoid;
+    font-size: 10pt;
+  }
+  .callout b { font-family: "Liberation Sans", "DejaVu Sans", Arial, sans-serif; }
+
+  .ok { color: var(--ok); font-weight: bold; }
+  .bad { color: var(--bad); font-weight: bold; }
+  .nowrap { white-space: nowrap; }
+  .page-break { break-before: page; }
+</style>
+</head>
+<body>
+
+<section class="cover">
+  <div class="top">
+    <div class="inst">UNIVERSIDAD DE ANTIOQUIA</div>
+    <div class="sub">Facultad de Ingeniería · Arquitectura de Software · 2026-2</div>
+  </div>
+
+  <div class="mid">
+    <h1>Laboratorio N.º 1<br>Aplicación bancaria con API REST<br>y cliente web</h1>
+    <p class="lead">Desarrollo de un frontend en React que consume los servicios REST de una aplicación Spring Boot con persistencia en MySQL.</p>
+  </div>
+
+  <div class="meta">
+    <div><b>Estudiante:</b> Isaac Mesa Gómez</div>
+    <div><b>Correo:</b> isaac.mesag@udea.edu.co</div>
+    <div><b>Docente:</b> Diego Botía</div>
+    <div><b>Entrega:</b> 16 de septiembre de 2026</div>
+    <div class="repo">github.com/isaacmgz/lab12026p</div>
+  </div>
+</section>
+
+<div class="toc">
+  <h3>Contenido</h3>
+  <ol>
+    <li>Introducción</li>
+    <li>Objetivos</li>
+    <li>Herramientas de software empleadas</li>
+    <li>Arquitectura propuesta</li>
+    <li>Procedimiento</li>
+    <li>Conclusiones</li>
+    <li>Bibliografía</li>
+    <li>Proyecto anexo en GitHub</li>
+  </ol>
+</div>
+
+<h2>1. Introducción</h2>
+
+<p>El laboratorio plantea la construcción de una aplicación que simula las operaciones básicas de un banco: registrar clientes, transferir dinero entre cuentas y consultar el histórico de movimientos. El punto de partida fue el proyecto base entregado por el docente, que contenía la API REST en Spring Boot con su arquitectura por capas, y el ejercicio de entrega obligatoria consistía en desarrollar un frontend que consumiera las rutas definidas en los controladores, con al menos tres vistas: consulta de clientes, transferencia de dinero y tabla del histórico de transacciones por cliente.</p>
+
+<p>El trabajo realizado va un paso más allá del mínimo solicitado. Antes de escribir la primera línea del cliente web se ejercitó la API existente con peticiones reales, lo que permitió detectar defectos funcionales de fondo: el más grave permitía enviar un monto negativo y, en consecuencia, transferir dinero en sentido contrario al solicitado. Por esa razón el informe documenta tanto la construcción del frontend como la corrección de las reglas de negocio que lo sustentan, ya que una interfaz solo puede ser confiable si el servicio que consume también lo es.</p>
+
+<p>El resultado es una aplicación completa y verificada extremo a extremo: base de datos MySQL en contenedor, API REST con validación y manejo uniforme de errores, y un cliente web en React que consume esos servicios mediante Axios. Todo el proceso quedó versionado en un repositorio público con issues, ramas, pull requests e integración continua.</p>
+
+<h2>2. Objetivos</h2>
+
+<h3>2.1. Objetivo general</h3>
+
+<p>Desarrollar un cliente web que consuma los servicios REST de la aplicación bancaria construida con Spring Boot, garantizando la comunicación efectiva entre las tres capas del sistema —interfaz de usuario, servicios de negocio y base de datos— y aplicando principios de arquitectura por capas, usabilidad y control de versiones.</p>
+
+<h3>2.2. Objetivos específicos</h3>
+
+<ol>
+  <li>Configurar un entorno de desarrollo reproducible que integre la API Spring Boot con una base de datos MySQL, parametrizando la conexión mediante variables de entorno.</li>
+  <li>Verificar el comportamiento de los endpoints existentes e identificar y corregir los defectos funcionales que comprometen la integridad de los datos en las transferencias.</li>
+  <li>Estandarizar las respuestas de error de la API conforme a la especificación RFC 9457, de modo que el cliente pueda interpretarlas y comunicarlas al usuario.</li>
+  <li>Implementar las tres vistas exigidas por el laboratorio —consulta de clientes, transferencia de dinero e histórico de transacciones por cliente— empleando React y Axios.</li>
+  <li>Incorporar la funcionalidad opcional de actualización y eliminación de clientes, respetando las reglas de integridad del histórico.</li>
+  <li>Aplicar principios de experiencia de usuario e interfaz: retroalimentación de estados, prevención de errores, accesibilidad y diseño adaptable a dispositivos móviles.</li>
+  <li>Validar el funcionamiento integral del sistema mediante pruebas automatizadas y la ejecución del flujo completo en un navegador real.</li>
+  <li>Documentar el proyecto y gestionar su versionamiento en GitHub con un flujo basado en issues, ramas, pull requests e integración continua.</li>
+</ol>
+
+<h2>3. Herramientas de software empleadas</h2>
+
+<p>La selección de herramientas respeta las indicadas en la guía del laboratorio —Spring Boot, JDK 17, Maven, NodeJS, React y Axios— y las complementa con librerías de uso extendido en la industria para el manejo de estado del servidor, la validación de formularios y las pruebas automatizadas.</p>
+
+<h3>3.1. Backend</h3>
+
+<table>
+  <tr><th style="width:32%">Herramienta</th><th style="width:14%">Versión</th><th>Función en el proyecto</th></tr>
+  <tr><td>Java (JDK)</td><td>17</td><td>Lenguaje y plataforma de ejecución; el desarrollo se realizó sobre JDK 21 compilando para 17.</td></tr>
+  <tr><td>Spring Boot</td><td>3.5.11</td><td>Framework base: Web MVC, Data JPA, Validation y DevTools.</td></tr>
+  <tr><td>Hibernate / JPA</td><td>incluida</td><td>Mapeo objeto-relacional y generación automática del esquema.</td></tr>
+  <tr><td>MySQL Connector/J</td><td>incluida</td><td>Controlador JDBC para la conexión con la base de datos.</td></tr>
+  <tr><td>MapStruct</td><td>1.5.5.Final</td><td>Generación en tiempo de compilación de los mapeadores entre entidades y DTO.</td></tr>
+  <tr><td>Lombok</td><td>1.18.42</td><td>Reducción de código repetitivo (se conserva del proyecto base).</td></tr>
+  <tr><td>Maven Wrapper</td><td>3.9.12</td><td>Construcción del proyecto sin depender de una instalación local de Maven.</td></tr>
+  <tr><td>JUnit 5, Mockito, MockMvc</td><td>incluidas</td><td>Pruebas unitarias de servicios y pruebas de los controladores REST.</td></tr>
+</table>
+
+<h3>3.2. Frontend</h3>
+
+<table>
+  <tr><th style="width:32%">Herramienta</th><th style="width:14%">Versión</th><th>Función en el proyecto</th></tr>
+  <tr><td>Node.js</td><td>22.23</td><td>Entorno de ejecución para las herramientas de desarrollo.</td></tr>
+  <tr><td>React</td><td>19.2</td><td>Librería para la construcción de la interfaz por componentes.</td></tr>
+  <tr><td>TypeScript</td><td>6.0</td><td>Tipado estático sobre JavaScript; previene errores en tiempo de compilación.</td></tr>
+  <tr><td>Vite</td><td>8.3</td><td>Servidor de desarrollo y empaquetado para producción.</td></tr>
+  <tr><td>Axios</td><td>1.20</td><td>Cliente HTTP para consumir la API REST.</td></tr>
+  <tr><td>TanStack Query</td><td>5.102</td><td>Gestión del estado del servidor: caché, recarga e invalidación tras cada operación.</td></tr>
+  <tr><td>React Router</td><td>8.4</td><td>Enrutamiento entre las vistas y estado compartido en la URL.</td></tr>
+  <tr><td>Tailwind CSS</td><td>4.3</td><td>Sistema de estilos utilitario; base del tema claro y oscuro.</td></tr>
+  <tr><td>React Hook Form + Zod</td><td>7.88 / 4.6</td><td>Manejo y validación de formularios en el cliente.</td></tr>
+  <tr><td>Vitest, Testing Library, MSW</td><td>5.0 / 16.3 / 2.15</td><td>Pruebas automatizadas de la interfaz simulando la API a nivel de red.</td></tr>
+</table>
+
+<h3>3.3. Infraestructura, calidad y control de versiones</h3>
+
+<table>
+  <tr><th style="width:32%">Herramienta</th><th style="width:14%">Versión</th><th>Función en el proyecto</th></tr>
+  <tr><td>MySQL</td><td>8.4</td><td>Base de datos relacional, ejecutada en contenedor.</td></tr>
+  <tr><td>Podman + Compose</td><td>5.8</td><td>Provisión reproducible de la base de datos mediante <code>compose.yaml</code>.</td></tr>
+  <tr><td>Git y GitHub</td><td>—</td><td>Control de versiones, issues, pull requests y publicación de la entrega.</td></tr>
+  <tr><td>GitHub Actions</td><td>—</td><td>Integración continua: pruebas del backend y del frontend en cada cambio.</td></tr>
+  <tr><td>Playwright</td><td>—</td><td>Verificación del flujo completo en un navegador real y captura de evidencias.</td></tr>
+  <tr><td>oxlint y Prettier</td><td>—</td><td>Análisis estático y formato uniforme del código del cliente web.</td></tr>
+</table>
+
+<h2 class="page-break">4. Arquitectura propuesta</h2>
+
+<p>El sistema adopta una arquitectura cliente-servidor de tres niveles, en la que cada nivel tiene una responsabilidad única y se comunica con el siguiente a través de un contrato explícito. El navegador ejecuta una aplicación de página única que nunca accede a la base de datos: toda operación se solicita a la API mediante HTTP con mensajes en formato JSON, y solo el servidor conoce las reglas de negocio y la persistencia.</p>
+
+<figure>
+<svg viewBox="0 0 640 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagrama de la arquitectura en tres niveles">
+  <defs>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#3b3ab8"/>
+    </marker>
+    <style>
+      .grp { fill: #fafbfd; stroke: #c7cbd8; stroke-width: 1; rx: 8; }
+      .box { fill: #ffffff; stroke: #3b3ab8; stroke-width: 1; rx: 5; }
+      .db { fill: #eef0fb; stroke: #3b3ab8; stroke-width: 1; rx: 5; }
+      .t { font-family: "Liberation Sans", Arial, sans-serif; font-size: 10px; fill: #1a1c22; }
+      .tt { font-family: "Liberation Sans", Arial, sans-serif; font-size: 10.5px; font-weight: bold; fill: #3b3ab8; }
+      .s { font-family: "Liberation Sans", Arial, sans-serif; font-size: 8.5px; fill: #5b6070; }
+      .lbl { font-family: "Liberation Mono", monospace; font-size: 8.5px; fill: #3b3ab8; }
+    </style>
+  </defs>
+
+  <rect class="grp" x="4" y="26" width="196" height="248"/>
+  <text class="tt" x="102" y="46" text-anchor="middle">Nivel de presentación</text>
+  <text class="s" x="102" y="59" text-anchor="middle">Navegador · React 19 + TypeScript</text>
+  <rect class="box" x="20" y="72" width="164" height="46"/>
+  <text class="t" x="102" y="90" text-anchor="middle">Vistas</text>
+  <text class="s" x="102" y="105" text-anchor="middle">Clientes · Transferencia · Historial</text>
+  <rect class="box" x="20" y="130" width="164" height="42"/>
+  <text class="t" x="102" y="148" text-anchor="middle">TanStack Query</text>
+  <text class="s" x="102" y="162" text-anchor="middle">caché y sincronización</text>
+  <rect class="box" x="20" y="184" width="164" height="42"/>
+  <text class="t" x="102" y="202" text-anchor="middle">Axios</text>
+  <text class="s" x="102" y="216" text-anchor="middle">cliente HTTP</text>
+  <text class="s" x="102" y="248" text-anchor="middle">Diseño adaptable, tema claro/oscuro</text>
+
+  <line x1="200" y1="150" x2="248" y2="150" stroke="#3b3ab8" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <text class="lbl" x="224" y="140" text-anchor="middle">HTTP</text>
+  <text class="lbl" x="224" y="166" text-anchor="middle">JSON</text>
+
+  <rect class="grp" x="252" y="26" width="212" height="248"/>
+  <text class="tt" x="358" y="46" text-anchor="middle">Nivel de negocio</text>
+  <text class="s" x="358" y="59" text-anchor="middle">Spring Boot 3.5 · API REST</text>
+  <rect class="box" x="268" y="72" width="180" height="40"/>
+  <text class="t" x="358" y="89" text-anchor="middle">Controladores</text>
+  <text class="s" x="358" y="102" text-anchor="middle">rutas /api, validación, códigos HTTP</text>
+  <rect class="box" x="268" y="122" width="180" height="40"/>
+  <text class="t" x="358" y="139" text-anchor="middle">Servicios</text>
+  <text class="s" x="358" y="152" text-anchor="middle">reglas de negocio y transacciones</text>
+  <rect class="box" x="268" y="172" width="180" height="40"/>
+  <text class="t" x="358" y="189" text-anchor="middle">Repositorios</text>
+  <text class="s" x="358" y="202" text-anchor="middle">Spring Data JPA</text>
+  <text class="s" x="358" y="232" text-anchor="middle">DTO + MapStruct · manejo global de errores</text>
+  <text class="s" x="358" y="246" text-anchor="middle">(RFC 9457) · CORS</text>
+  <line x1="358" y1="112" x2="358" y2="120" stroke="#3b3ab8" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <line x1="358" y1="162" x2="358" y2="170" stroke="#3b3ab8" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+  <line x1="464" y1="150" x2="512" y2="150" stroke="#3b3ab8" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <text class="lbl" x="488" y="140" text-anchor="middle">JDBC</text>
+  <text class="lbl" x="488" y="166" text-anchor="middle">Hibernate</text>
+
+  <rect class="grp" x="516" y="26" width="120" height="248"/>
+  <text class="tt" x="576" y="46" text-anchor="middle">Nivel de datos</text>
+  <text class="s" x="576" y="59" text-anchor="middle">MySQL 8.4</text>
+  <rect class="db" x="530" y="96" width="92" height="44"/>
+  <text class="t" x="576" y="116" text-anchor="middle">customers</text>
+  <text class="s" x="576" y="129" text-anchor="middle">saldo por cuenta</text>
+  <rect class="db" x="530" y="152" width="92" height="44"/>
+  <text class="t" x="576" y="172" text-anchor="middle">transaction</text>
+  <text class="s" x="576" y="185" text-anchor="middle">histórico</text>
+  <text class="s" x="576" y="222" text-anchor="middle">Contenedor</text>
+  <text class="s" x="576" y="234" text-anchor="middle">Podman</text>
+</svg>
+<figcaption>Figura 1. Arquitectura en tres niveles: navegador, servicio REST y base de datos.</figcaption>
+</figure>
+
+<h3>4.1. Capas del servidor</h3>
+
+<p>El backend conserva la arquitectura por capas propuesta en la guía del laboratorio, con una responsabilidad clara en cada una:</p>
+
+<table>
+  <tr><th style="width:24%">Capa</th><th>Responsabilidad</th></tr>
+  <tr><td class="mono">controller</td><td>Expone las rutas HTTP, valida el cuerpo de las peticiones y traduce el resultado a un código de estado.</td></tr>
+  <tr><td class="mono">service</td><td>Contiene las reglas de negocio y delimita la transacción de base de datos.</td></tr>
+  <tr><td class="mono">repository</td><td>Acceso a datos mediante Spring Data JPA, con consultas derivadas del nombre del método.</td></tr>
+  <tr><td class="mono">entity</td><td>Entidades JPA que representan las tablas <code>customers</code> y <code>transaction</code>.</td></tr>
+  <tr><td class="mono">dto + mapper</td><td>Objetos de transferencia y mapeadores MapStruct; evitan exponer las entidades del dominio.</td></tr>
+  <tr><td class="mono">exception</td><td>Excepciones de dominio y manejador global que las convierte en respuestas de error uniformes.</td></tr>
+</table>
+
+<h3>4.2. Organización del cliente web</h3>
+
+<p>El frontend replica esa separación de responsabilidades con una organización por funcionalidad: cada una de las tres áreas del negocio —<code>customers</code>, <code>transfers</code> y <code>transactions</code>— agrupa su propio acceso a la API, su modelo, sus componentes y sus páginas. Los elementos visuales reutilizables (botones, campos, tablas, diálogos y estados de carga, vacío y error) residen en un módulo compartido que actúa como sistema de diseño.</p>
+
+<p>Se aplica además el patrón contenedor-presentación: las páginas obtienen los datos y coordinan las operaciones, mientras que los componentes solo reciben propiedades y emiten eventos. Esto mantiene la lógica concentrada en pocos archivos y permite probar los componentes de forma aislada.</p>
+
+<h3>4.3. Flujo de una transferencia</h3>
+
+<ol>
+  <li>El usuario selecciona las cuentas de origen y destino e ingresa el monto; el cliente valida localmente que las cuentas sean distintas, que el monto sea positivo, con máximo dos decimales, y que no supere el saldo disponible.</li>
+  <li>Tras confirmar en el paso de revisión, Axios envía <code>POST /api/transactions</code> con las dos cuentas y el monto.</li>
+  <li>El controlador valida el cuerpo de la petición mediante anotaciones de Bean Validation; si algo falla responde <code>400</code> indicando el campo afectado.</li>
+  <li>El servicio abre una transacción, bloquea ambas cuentas en un orden consistente, verifica las reglas de negocio, actualiza los saldos con aritmética decimal exacta y registra el movimiento con la fecha asignada por el servidor.</li>
+  <li>La respuesta <code>201</code> devuelve el comprobante; el cliente invalida su caché para que los saldos y el histórico se actualicen de inmediato en todas las vistas.</li>
+</ol>
+
+<h3>4.4. Decisiones de diseño relevantes</h3>
+
+<ul>
+  <li><b>Atomicidad e integridad.</b> La transferencia se ejecuta dentro de una única transacción con bloqueo pesimista de ambas cuentas, de modo que no puede quedar dinero descontado de una cuenta sin acreditarse en la otra, ni producirse condiciones de carrera entre transferencias simultáneas.</li>
+  <li><b>Errores interpretables por el cliente.</b> Todas las respuestas de error siguen la especificación RFC 9457 (<code>application/problem+json</code>), con un mensaje legible y, en los errores de validación, el detalle por campo. Gracias a ello la interfaz muestra el mensaje junto al campo que lo origina.</li>
+  <li><b>Inmutabilidad del histórico.</b> El número de cuenta y el saldo no se modifican desde los endpoints de cliente: el saldo solo cambia por transferencias, y no se permite eliminar clientes con movimientos registrados.</li>
+  <li><b>Configuración externa.</b> Las credenciales y puertos se leen de variables de entorno con valores por defecto para desarrollo local, lo que permite ejecutar el sistema en otro equipo sin modificar el código.</li>
+</ul>
+
+<h2 class="page-break">5. Procedimiento</h2>
+
+<p>El desarrollo se organizó en fases; cada una corresponde a un issue en el repositorio y se integró a la rama principal mediante un pull request con su respectiva verificación.</p>
+
+<h3>5.1. Preparación del repositorio</h3>
+
+<p>Se creó un fork del repositorio base del docente, con lo que se conserva el commit inicial y la trazabilidad respecto al proyecto original. Sobre el fork se definieron ocho issues —uno por unidad de trabajo—, un hito de entrega y un flujo de trabajo basado en ramas nombradas por tipo (<code>feat/</code>, <code>fix/</code>, <code>build/</code>, <code>docs/</code>), commits con formato Conventional Commits y pull requests que cierran su issue.</p>
+
+<h3>5.2. Entorno reproducible</h3>
+
+<p>Se añadió un archivo <code>compose.yaml</code> que levanta MySQL 8.4 con comprobación de salud, y se parametrizó la conexión mediante variables de entorno. Adicionalmente se corrigieron dos conflictos de dependencias del proyecto base: la versión de <code>jackson-databind</code> fijada manualmente (2.15.0) convivía con los demás artefactos de Jackson gestionados por Spring Boot (2.19.4), y la versión de Lombok declarada no compila en JDK recientes. Al delegar ambas versiones a Spring Boot, el proyecto compila y arranca sin advertencias.</p>
+
+<h3>5.3. Diagnóstico de la API existente</h3>
+
+<p>Antes de construir el cliente se ejercitaron los endpoints con peticiones reales contra la base de datos. La prueba consistió en crear dos clientes con saldos conocidos y ejecutar transferencias con valores límite. El resultado más relevante fue el siguiente:</p>
+
+<pre>POST /api/transactions
+{"senderAccountNumber":"1001","receiverAccountNumber":"1002","amount":-50}
+
+Respuesta: 200 OK
+Saldos antes:    1001 = 500.00      1002 = 100.00
+Saldos después:  1001 = 550.00      1002 =  50.00</pre>
+
+<p>Es decir, un monto negativo invertía el sentido de la operación y permitía extraer dinero de la cuenta destino. El diagnóstico reveló además otros defectos, resumidos en la tabla siguiente.</p>
+
+<table>
+  <tr><th style="width:38%">Situación</th><th style="width:31%">Comportamiento original</th><th style="width:31%">Comportamiento corregido</th></tr>
+  <tr><td>Monto negativo o nulo</td><td class="bad">200 OK, invierte los saldos</td><td class="ok">400 con el detalle del campo</td></tr>
+  <tr><td>Cuenta origen igual a la destino</td><td class="bad">Permitido</td><td class="ok">422 con regla de negocio</td></tr>
+  <tr><td>Saldo insuficiente</td><td>400 en texto plano</td><td class="ok">422 en formato problem+json</td></tr>
+  <tr><td>Cliente inexistente</td><td class="bad">500 Internal Server Error</td><td class="ok">404 Not Found</td></tr>
+  <tr><td>Fecha del movimiento</td><td class="bad">La define el cliente</td><td class="ok">La asigna el servidor</td></tr>
+  <tr><td>Actualización de saldos</td><td class="bad">Tres escrituras independientes</td><td class="ok">Una transacción con bloqueo</td></tr>
+  <tr><td>Número de cuenta duplicado</td><td class="bad">500 Internal Server Error</td><td class="ok">409 Conflict</td></tr>
+</table>
+
+<h3>5.4. Corrección y ampliación de la API</h3>
+
+<p>Con el diagnóstico anterior se implementaron las correcciones y se añadieron los endpoints necesarios para la funcionalidad opcional del laboratorio. El contrato final de la API es el siguiente:</p>
+
+<table>
+  <tr><th style="width:11%">Método</th><th style="width:31%">Ruta</th><th style="width:12%">Éxito</th><th>Errores</th></tr>
+  <tr><td class="mono">GET</td><td class="mono">/api/customers</td><td>200</td><td>—</td></tr>
+  <tr><td class="mono">GET</td><td class="mono">/api/customers/{id}</td><td>200</td><td>404</td></tr>
+  <tr><td class="mono">POST</td><td class="mono">/api/customers</td><td>201</td><td>400, 409</td></tr>
+  <tr><td class="mono">PUT</td><td class="mono">/api/customers/{id}</td><td>200</td><td>400, 404</td></tr>
+  <tr><td class="mono">DELETE</td><td class="mono">/api/customers/{id}</td><td>204</td><td>404, 409</td></tr>
+  <tr><td class="mono">POST</td><td class="mono">/api/transactions</td><td>201</td><td>400, 404, 422</td></tr>
+  <tr><td class="mono">GET</td><td class="mono">/api/transactions/{accountNumber}</td><td>200</td><td>404</td></tr>
+</table>
+
+<p>Un error de validación se comunica así, con el detalle por campo que la interfaz aprovecha para señalar la entrada incorrecta:</p>
+
+<pre>{
+  "type": "about:blank",
+  "title": "Validation failed",
+  "status": 400,
+  "detail": "One or more fields are invalid.",
+  "instance": "/api/customers",
+  "errors": { "accountNumber": "Account number must contain 4 to 20 digits" }
+}</pre>
+
+<h3>5.5. Construcción del cliente web</h3>
+
+<p>El cliente se construyó en cuatro incrementos: la base del proyecto con el sistema de diseño y el cliente HTTP, y luego una vista por entrega. Cada vista aplica los mismos principios de experiencia de usuario: estados visibles de carga, vacío y error; retroalimentación inmediata de cada acción; prevención de errores antes de enviar la petición; y confirmación explícita de las operaciones irreversibles.</p>
+
+<figure>
+  <img src="../screenshots/light-customers.png" alt="Vista de clientes">
+  <figcaption>Figura 2. Vista de clientes: totales, búsqueda, ordenamiento y acciones por registro.</figcaption>
+</figure>
+
+<figure>
+  <img src="../screenshots/light-transfer.png" alt="Vista de transferencia">
+  <figcaption>Figura 3. Vista de transferencia: selección de cuentas, saldo disponible y resumen con los saldos resultantes.</figcaption>
+</figure>
+
+<figure>
+  <img src="../screenshots/report-receipt.png" alt="Comprobante de transferencia">
+  <figcaption>Figura 4. Comprobante emitido tras confirmar la transferencia, con su número de referencia.</figcaption>
+</figure>
+
+<figure>
+  <img src="../screenshots/dark-history.png" alt="Histórico de transacciones">
+  <figcaption>Figura 5. Histórico por cliente con totales, filtro por tipo de movimiento y tema oscuro.</figcaption>
+</figure>
+
+<p>La funcionalidad opcional de actualización y eliminación de clientes respeta las reglas de integridad del servidor. Cuando se intenta eliminar un cliente que ya registra movimientos, la interfaz muestra el motivo devuelto por la API en lugar de fallar silenciosamente:</p>
+
+<figure>
+  <img src="../screenshots/report-delete-conflict.png" alt="Conflicto al eliminar un cliente con transacciones">
+  <figcaption>Figura 6. Regla de integridad: no se elimina un cliente con transacciones asociadas (409 Conflict).</figcaption>
+</figure>
+
+<figure>
+  <img class="phone" src="../screenshots/mobile-customers.png" alt="Vista de clientes en teléfono">
+  <figcaption>Figura 7. Diseño adaptable: navegación inferior y tarjetas en pantallas pequeñas.</figcaption>
+</figure>
+
+<h3>5.6. Verificación</h3>
+
+<p>La verificación se realizó en tres niveles complementarios:</p>
+
+<table>
+  <tr><th style="width:26%">Nivel</th><th style="width:16%">Resultado</th><th>Alcance</th></tr>
+  <tr><td>Pruebas del backend</td><td class="ok nowrap">30 pruebas</td><td>Reglas de la transferencia, validación de clientes y traducción de errores a códigos HTTP.</td></tr>
+  <tr><td>Pruebas del frontend</td><td class="ok nowrap">50 pruebas</td><td>Cada vista con la API simulada a nivel de red: listados, validaciones, filtros y totales.</td></tr>
+  <tr><td>Flujo en navegador</td><td class="ok nowrap">Sin errores</td><td>Creación, edición, cuenta duplicada, eliminación con conflicto, transferencia completa e histórico, contra la base de datos real.</td></tr>
+</table>
+
+<p>La ejecución en navegador se automatizó con Playwright, registrando los errores de consola y las peticiones fallidas: ambos indicadores quedaron en cero. Las figuras de este informe corresponden a esa ejecución.</p>
+
+<h3>5.7. Documentación, integración continua y entrega</h3>
+
+<p>Finalmente se redactó el archivo <code>README.md</code> con la guía de instalación, el diagrama de arquitectura, la referencia de la API y la tabla de variables de entorno; y se configuró un flujo de integración continua en GitHub Actions que, ante cada cambio, ejecuta las pruebas del backend contra una instancia de MySQL y el análisis estático, la verificación de tipos, las pruebas y la compilación del frontend. La entrega se publicó con la etiqueta <code>v1.0.0</code>.</p>
+
+<h2>6. Conclusiones</h2>
+
+<ol>
+  <li>La separación en capas demostró su utilidad práctica durante la corrección de defectos: las reglas de negocio de la transferencia se concentraron en la capa de servicio sin modificar controladores ni repositorios, y el cliente web no requirió cambio alguno porque el contrato de la API se mantuvo estable.</li>
+  <li>Probar la API antes de construir la interfaz resultó determinante. El defecto del monto negativo era invisible desde el código, pero evidente al ejercitar el endpoint con valores límite; construir el frontend sobre esa base habría producido una aplicación que mostraba saldos incorrectos con total normalidad.</li>
+  <li>La atomicidad no es opcional en operaciones financieras. Ejecutar las tres escrituras de una transferencia sin una transacción única deja abierta la posibilidad de que el dinero se descuente de una cuenta y no llegue a la otra ante cualquier fallo intermedio.</li>
+  <li>Adoptar un estándar para los errores (RFC 9457) simplificó notablemente el cliente: un único punto de traducción convierte cualquier error en un mensaje comprensible y, cuando corresponde, lo asocia al campo del formulario que lo provocó.</li>
+  <li>Los DTO y los mapeadores evitan exponer las entidades del dominio y permiten que la API evolucione sin que el esquema de la base de datos condicione la respuesta, a costa de un código de mapeo que MapStruct genera automáticamente.</li>
+  <li>La validación en el cliente mejora la experiencia, pero no sustituye a la del servidor: el cliente previene errores antes de enviar la petición, mientras que el servidor garantiza la integridad frente a cualquier consumidor de la API.</li>
+  <li>El flujo de versionamiento con issues, ramas y pull requests pequeños hizo que cada cambio fuera revisable de forma independiente y que el historial del proyecto explique por sí mismo la evolución del trabajo.</li>
+  <li>Como trabajo futuro se identifican tres mejoras: almacenar los importes monetarios como <code>BigDecimal</code> en la base de datos en lugar de coma flotante, incorporar autenticación y autorización, y documentar la API con OpenAPI/Swagger.</li>
+</ol>
+
+<h2>7. Bibliografía</h2>
+
+<ol>
+  <li>Botía, D. <i>Arquitectura de Software. Laboratorio N.º 1: Introducción a SpringBoot</i>. Universidad de Antioquia, 2026.</li>
+  <li>VMware Tanzu. <i>Spring Boot Reference Documentation</i>, versión 3.5. Disponible en: <span class="mono">https://docs.spring.io/spring-boot/reference/</span></li>
+  <li>VMware Tanzu. <i>Spring Data JPA Reference Documentation</i>. Disponible en: <span class="mono">https://docs.spring.io/spring-data/jpa/reference/</span></li>
+  <li>VMware Tanzu. <i>Spring Framework: Web on Servlet Stack</i>. Disponible en: <span class="mono">https://docs.spring.io/spring-framework/reference/web/webmvc.html</span></li>
+  <li>Nottingham, M.; Wilde, E.; Dalal, S. <i>RFC 9457: Problem Details for HTTP APIs</i>. IETF, 2023. Disponible en: <span class="mono">https://www.rfc-editor.org/rfc/rfc9457</span></li>
+  <li>MapStruct. <i>MapStruct Reference Guide</i>, versión 1.5. Disponible en: <span class="mono">https://mapstruct.org/documentation/stable/reference/html/</span></li>
+  <li>Oracle. <i>MySQL 8.4 Reference Manual</i>. Disponible en: <span class="mono">https://dev.mysql.com/doc/refman/8.4/en/</span></li>
+  <li>Meta Open Source. <i>React Documentation</i>. Disponible en: <span class="mono">https://react.dev/</span></li>
+  <li>Vite. <i>Vite Guide</i>. Disponible en: <span class="mono">https://vite.dev/guide/</span></li>
+  <li>Axios. <i>Axios Documentation</i>. Disponible en: <span class="mono">https://axios-http.com/docs/intro</span></li>
+  <li>TanStack. <i>TanStack Query Documentation</i>. Disponible en: <span class="mono">https://tanstack.com/query/latest</span></li>
+  <li>Conventional Commits. <i>Conventional Commits 1.0.0</i>. Disponible en: <span class="mono">https://www.conventionalcommits.org/es/v1.0.0/</span></li>
+</ol>
+
+<h2>8. Proyecto anexo en GitHub</h2>
+
+<p>El proyecto completo —API, cliente web, documentación e integración continua— se encuentra publicado en el siguiente repositorio, creado como fork del proyecto base del curso:</p>
+
+<div class="callout">
+  <b>Repositorio:</b> <span class="mono">https://github.com/isaacmgz/lab12026p</span><br>
+  <b>Versión de entrega:</b> <span class="mono">v1.0.0</span><br>
+  <b>Proyecto base:</b> <span class="mono">https://github.com/diegobotia/lab12026p</span>
+</div>
+
+<h3>8.1. Ejecución local</h3>
+
+<p>Requisitos: JDK 17 o superior, Node.js 20.19 o superior y Docker o Podman.</p>
+
+<pre># 1. Base de datos
+podman compose up -d
+
+# 2. API REST  ->  http://localhost:8080
+./mvnw spring-boot:run
+
+# 3. Cliente web  ->  http://localhost:5173
+cd frontend &amp;&amp; npm install &amp;&amp; npm run dev</pre>
+
+<h3>8.2. Estructura del repositorio</h3>
+
+<pre>.
+├── compose.yaml              Servicio MySQL para desarrollo local
+├── src/main/java/...         API REST en Spring Boot
+├── frontend/                 Cliente web en React
+│   └── src/
+│       ├── app/              proveedores, enrutamiento y layout
+│       ├── features/         customers, transfers, transactions
+│       └── shared/           cliente HTTP, sistema de diseño, utilidades
+├── docs/                     Informe y evidencias gráficas
+└── .github/workflows/ci.yml  Integración continua</pre>
+
+<h3>8.3. Trazabilidad del desarrollo</h3>
+
+<table>
+  <tr><th style="width:34%">Elemento</th><th>Detalle</th></tr>
+  <tr><td>Issues</td><td>8, todos cerrados mediante su pull request correspondiente.</td></tr>
+  <tr><td>Pull requests integrados</td><td>9, cada uno con resumen, ruta de revisión y evidencia de verificación.</td></tr>
+  <tr><td>Integración continua</td><td>Pruebas del backend con MySQL y verificación completa del frontend en cada cambio.</td></tr>
+  <tr><td>Publicación</td><td>Etiqueta y release <code>v1.0.0</code> con las notas de la entrega.</td></tr>
+</table>
+
+</body>
+</html>
