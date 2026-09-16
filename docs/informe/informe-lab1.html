@@ -101,9 +101,25 @@
   .cover .mid { flex: 1; display: flex; flex-direction: column; justify-content: center; }
   .cover h1 { font-size: 21pt; line-height: 1.25; margin: 0 0 10pt; }
   .cover .lead { font-size: 12pt; color: var(--muted); margin: 0 auto; max-width: 118mm; text-align: center; }
-  .cover .meta { font-family: "Liberation Sans", "DejaVu Sans", Arial, sans-serif; font-size: 10.5pt; line-height: 1.9; }
-  .cover .meta b { display: inline-block; min-width: 26mm; text-align: right; margin-right: 6pt; color: var(--muted); font-weight: normal; }
-  .cover .repo { margin-top: 14pt; font-family: "Liberation Mono", "DejaVu Sans Mono", monospace; font-size: 9.5pt; color: var(--accent); }
+  .cover .meta {
+    display: grid;
+    grid-template-columns: auto auto;
+    justify-content: center;
+    column-gap: 8pt;
+    row-gap: 5pt;
+    font-family: "Liberation Sans", "DejaVu Sans", Arial, sans-serif;
+    font-size: 10.5pt;
+  }
+  .cover .meta .k { text-align: right; color: var(--muted); }
+  .cover .meta .v { text-align: left; }
+  .cover .repo {
+    margin-top: 16pt;
+    padding-top: 12pt;
+    border-top: 0.75pt solid var(--line);
+    font-family: "Liberation Mono", "DejaVu Sans Mono", monospace;
+    font-size: 9.5pt;
+    color: var(--accent);
+  }
 
   .toc { background: #fafbfd; border: 0.75pt solid var(--line); border-radius: 5px; padding: 10pt 14pt; margin-bottom: 4pt; }
   .toc h3 { margin-top: 0; }
@@ -139,12 +155,12 @@
   </div>
 
   <div class="meta">
-    <div><b>Estudiante:</b> Isaac Mesa Gómez</div>
-    <div><b>Correo:</b> isaac.mesag@udea.edu.co</div>
-    <div><b>Docente:</b> Diego Botía</div>
-    <div><b>Entrega:</b> 16 de septiembre de 2026</div>
-    <div class="repo">github.com/isaacmgz/lab12026p</div>
+    <span class="k">Estudiante:</span><span class="v">Isaac Mesa Gómez</span>
+    <span class="k">Correo:</span><span class="v">isaac.mesag@udea.edu.co</span>
+    <span class="k">Docente:</span><span class="v">Diego Botía</span>
+    <span class="k">Entrega:</span><span class="v">15 de septiembre de 2026</span>
   </div>
+  <div class="repo">github.com/isaacmgz/lab12026p</div>
 </section>
 
 <div class="toc">
