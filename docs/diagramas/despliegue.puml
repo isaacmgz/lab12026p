@@ -1,0 +1,155 @@
+@startuml despliegue
+!pragma layout smetana
+left to right direction
+
+title Diagrama de despliegue — Sistema bancario "Lab Bank"
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam linetype ortho
+skinparam nodesep 25
+skinparam ranksep 55
+skinparam defaultFontName "Liberation Sans"
+skinparam defaultFontSize 12
+skinparam TitleFontSize 18
+skinparam ArrowColor #3B3AB8
+skinparam ArrowFontSize 11
+skinparam ArrowFontColor #35384A
+skinparam node {
+  BackgroundColor #FFFFFF
+  BorderColor #3B3AB8
+  FontColor #1A1C22
+  StereotypeFontColor #5B6070
+}
+skinparam artifact {
+  BackgroundColor #F6F7FB
+  BorderColor #8F93C4
+}
+skinparam component {
+  BackgroundColor #F6F7FB
+  BorderColor #8F93C4
+}
+skinparam database {
+  BackgroundColor #EEF0FB
+  BorderColor #3B3AB8
+}
+skinparam cloud {
+  BackgroundColor #FBFBFE
+  BorderColor #8F93C4
+}
+skinparam rectangle {
+  BackgroundColor #FBFBFE
+  BorderColor #8F93C4
+}
+
+' ===================== Clientes =====================
+together {
+
+  node "Equipo del usuario\nWindows / macOS / Linux" <<device>> as PC {
+    node "Navegador de escritorio\nChrome · Firefox · Edge" <<execution environment>> as NAV {
+      artifact "SPA Lab Bank\nindex.html · JS · CSS\nReact 19 + Axios" as SPA
+    }
+  }
+
+  node "Dispositivo móvil\nAndroid / iOS" <<device>> as MOVIL {
+    node "Navegador móvil\nChrome · Safari" <<execution environment>> as NAVM {
+      artifact "Misma SPA\n(diseño adaptable)" as SPAM
+    }
+  }
+}
+
+' ===================== Nube =====================
+cloud "Nube pública — despliegue propuesto para producción" as NUBE {
+
+  node "CDN / hosting estático\nPaaS" <<device>> as CDN {
+    artifact "frontend/dist\nbundle de producción" as DIST
+  }
+
+  node "Servidor de aplicaciones\nmáquina virtual (IaaS · virtualización)" <<device>> as VM {
+    node "Motor de contenedores\nDocker / Podman · imágenes OCI" <<execution environment>> as RUNTIME {
+
+      node "Contenedor: proxy inverso" <<container>> as CNGINX {
+        component "Nginx\nterminación TLS 1.3 · :443" as NGINX
+      }
+
+      node "Contenedor: API REST" <<container>> as CAPI {
+        node "JRE 17" <<execution environment>> as JRE {
+          artifact "lab12026p.jar\nSpring Boot 3.5 · Tomcat embebido :8080" as JAR
+          component "controller · service · repository\nmapper · exception" as CAPAS
+        }
+      }
+    }
+  }
+
+  node "Servidor de base de datos\nservicio gestionado o contenedor" <<device>> as NODODB {
+    node "MySQL 8.4" <<execution environment>> as MYSQL {
+      database "Esquema lab12026p\ncustomers · transaction" as DB
+      artifact "Volumen persistente\nmysql-data" as VOL
+    }
+  }
+}
+
+' ===================== CI/CD =====================
+cloud "GitHub — SaaS" as GITHUB {
+  artifact "Repositorio\nisaacmgz/lab12026p" as REPO
+  node "GitHub Actions runner\nubuntu-latest" <<execution environment>> as RUNNER {
+    artifact "ci.yml\nmvnw verify · npm build" as CI
+  }
+}
+
+' ===================== Entorno local =====================
+node "Equipo de desarrollo — on-premise\nFedora Linux · 15 GB RAM" <<device>> as DEV {
+
+  node "Node.js 22" <<execution environment>> as NODE {
+    artifact "Vite dev server\n:5173" as VITE
+  }
+
+  node "JVM 21" <<execution environment>> as JVM {
+    artifact "lab12026p.jar\n:8080" as JARDEV
+  }
+
+  node "Podman 5.8\nmotor de contenedores" <<execution environment>> as PODMAN {
+    node "Contenedor lab12026p-mysql" <<container>> as CMYSQL {
+      database "MySQL 8.4\n:3306" as DBDEV
+    }
+  }
+}
+
+' ===================== Conexiones =====================
+NAV --> CDN : HTTPS / TLS 1.3\ndescarga del bundle
+NAVM --> CDN : HTTPS / TLS 1.3
+NAV --> NGINX : HTTPS · REST/JSON\nCORS
+NAVM --> NGINX : HTTPS · REST/JSON
+NGINX --> JAR : HTTP :8080\nred interna del contenedor
+JAR --> MYSQL : JDBC sobre TCP :3306\ncifrado TLS
+
+RUNNER --> CDN : despliegue del bundle\nHTTPS
+RUNNER --> RUNTIME : publicación de imagen OCI\nHTTPS
+DEV --> REPO : Git sobre SSH :22
+
+VITE --> JARDEV : HTTP :8080\nlocalhost
+JARDEV --> DBDEV : JDBC :3306\nlocalhost
+
+note bottom of DEV
+  Despliegue actual verificado:
+  los tres procesos conviven en el
+  mismo equipo mediante contenedores
+  y puertos locales.
+end note
+
+note bottom of NUBE
+  Los mismos artefactos del entorno local
+  (jar y bundle estático) se despliegan sin
+  cambios de código: la configuración viaja
+  en variables de entorno.
+end note
+
+legend right
+  |= Símbolo |= Significado |
+  | <<device>> | Nodo físico o virtual |
+  | <<execution environment>> | Entorno de ejecución |
+  | <<container>> | Contenedor OCI |
+  | artefacto | Unidad desplegable |
+endlegend
+
+@enduml
